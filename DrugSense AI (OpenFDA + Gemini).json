@@ -1,0 +1,215 @@
+{
+  "name": "DrugSense AI (OpenFDA + Gemini)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "drug-analysis",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "60038890-9caa-4024-a568-433519303b86",
+      "name": "Webhook Input",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "c59c6990-5207-4e0f-b596-35e74722dce4"
+    },
+    {
+      "parameters": {
+        "url": "https://api.fda.gov/drug/label.json",
+        "options": {},
+        "queryParametersUi": {
+          "parameter": [
+            {
+              "name": "search",
+              "value": "=openfda.brand_name:\"{{$json[\"body\"][\"nama_obat\"]}}\""
+            },
+            {
+              "name": "limit",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "id": "53236f95-7949-42b2-9dc3-46c4adc2166b",
+      "name": "OpenFDA API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        304,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const result = items[0].json.results?.[0] || {};\n\nreturn [{\n  json: {\n    nama_obat: $json[\"nama_obat\"] || \"Tidak diketahui\",\n    indikasi: result.indications_and_usage?.[0] || \"Tidak ditemukan\",\n    efek_samping: result.adverse_reactions?.[0] || \"Tidak ditemukan\",\n    peringatan: result.warnings_and_cautions?.[0] || \"Tidak ditemukan\",\n    data_fda: result\n  }\n}];\n"
+      },
+      "id": "0511070e-729b-4dab-8745-a18bca213e1b",
+      "name": "Format FDA Data",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        608,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "requestMethod": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyCC66-dLa9KIZKcic6yrxQbPScm2wyvM80",
+        "jsonParameters": true,
+        "options": {
+          "bodyContentType": "json"
+        },
+        "bodyParametersJson": "={{ JSON.stringify({\n  contents: [\n    {\n      role: \"user\",\n      parts: [\n        {\n          text: \"Kamu adalah asisten medis yang menganalisis data obat.\\n\" +\n                \"Berikan analisis, efek samping dan interaksi antar obat berdasarkan data berikut:\\n\" +\n                JSON.stringify($json)\n        }\n      ]\n    }\n  ]\n}) }}\n",
+        "headerParametersJson": "={\n  \"Content-Type\": \"application/json\"\n}"
+      },
+      "id": "129ceb2e-1520-4dc0-b6e6-334ae3543759",
+      "name": "Gemini API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const aiResponse = items[0].json.candidates?.[0]?.content?.parts?.[0]?.text || \"Tidak ada hasil dari Gemini\";\n\nreturn [{\n  json: {\n    ...$json,\n    analisis_ai: aiResponse\n  }\n}];\n"
+      },
+      "id": "9fba3727-4408-4735-8df1-11121e1a8f1d",
+      "name": "Parse Gemini Output",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1088,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "8686dd60-1d77-4db9-bb3b-327a8cf82407",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1504,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Ambil data dari node sebelumnya\nconst fdaData = $node[\"Format FDA Data\"]?.json || {};\nconst geminiData = $node[\"Parse Gemini Output\"]?.json || {};\n\n// Pastikan datanya ada\nconsole.log(\"FDA Data:\", fdaData);\nconsole.log(\"Gemini Data:\", geminiData);\n\n// Gabungkan hasil menjadi satu JSON\nreturn [\n  {\n    json: {\n      nama_obat: fdaData.nama_obat || \"Tidak diketahui\",\n      efek_samping: fdaData.efek_samping || \"Tidak ada data\",\n      interaksi_obat: fdaData.peringatan || \"Tidak ada data\",\n      analisis_ai: geminiData?.candidates?.[0]?.content?.parts?.[0]?.text || \"Belum ada hasil AI\",\n      sumber: \"OpenFDA + Gemini AI\"\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1280,
+        0
+      ],
+      "id": "937add7c-afa7-4e52-b573-683dfb363e76",
+      "name": "Code in JavaScript",
+      "executeOnce": false
+    }
+  ],
+  "pinData": {
+    "Respond to Webhook": [
+      {
+        "json": {
+          "name": "First item",
+          "code": 1
+        }
+      },
+      {
+        "json": {
+          "name": "Second item",
+          "code": 2
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook Input": {
+      "main": [
+        [
+          {
+            "node": "OpenFDA API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenFDA API": {
+      "main": [
+        [
+          {
+            "node": "Format FDA Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format FDA Data": {
+      "main": [
+        [
+          {
+            "node": "Gemini API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini API": {
+      "main": [
+        [
+          {
+            "node": "Parse Gemini Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Gemini Output": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "429a9f59-31ea-4ff7-8b7b-e0790b4696e2",
+  "meta": {
+    "instanceId": "b757982629056706f8de5f4a7de0aa7be09acefd6369f253a17712d5f751851e"
+  },
+  "id": "LVkX21uxE34Ow9Xi",
+  "tags": []
+}

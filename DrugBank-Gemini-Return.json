@@ -1,0 +1,75 @@
+{
+  "name": "Drug Info Analyzer",
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Get Drug Info (DrugBank)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [300, 300],
+      "parameters": {
+        "url": "https://api.drugbank.com/v1/us/drugs?name={{$json[\"drug_name\"]}}",
+        "authentication": "headerAuth",
+        "responseFormat": "json"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "DrugBankAuth",
+          "name": "DrugBank API Key"
+        }
+      }
+    },
+    {
+      "id": "2",
+      "name": "Analyze with Gemini",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [600, 300],
+      "parameters": {
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={{$credentials.apiKey}}",
+        "method": "POST",
+        "responseFormat": "json",
+        "jsonParameters": true,
+        "options": {},
+        "body": {
+          "contents": [
+            {
+              "parts": [
+                {
+                  "text": "Analisis efek samping dan interaksi obat berikut berdasarkan data:\n{{$json}}"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "GeminiAuth",
+          "name": "Gemini API Key"
+        }
+      }
+    },
+    {
+      "id": "3",
+      "name": "Return Result",
+      "type": "n8n-nodes-base.returnData",
+      "typeVersion": 1,
+      "position": [900, 300],
+      "parameters": {
+        "responseMode": "lastNode"
+      }
+    }
+  ],
+  "connections": {
+    "Get Drug Info (DrugBank)": {
+      "main": [[{"node": "Analyze with Gemini", "type": "main", "index": 0}]]
+    },
+    "Analyze with Gemini": {
+      "main": [[{"node": "Return Result", "type": "main", "index": 0}]]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "id": "DrugBank-Gemini-Return"
+}

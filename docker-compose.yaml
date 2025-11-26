@@ -1,0 +1,22 @@
+version: "3"
+
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=changeme
+      - GENERIC_TIMEZONE=Asia/Jakarta
+      - N8N_HOST=localhost
+      - WEBHOOK_URL=https://your-n8n-domain   # ganti jika pakai domain
+      - N8N_PORT=5678
+      - DRUGBANK_API_KEY=your_drugbank_key
+      - DRUGBANK_BASE_URL=https://api.drugbank.io
+      - GEMINI_API_KEY=your_gemini_key
+      - GEMINI_API_URL=https://api.gemini-or-llm/v1/generate
+    volumes:
+      - ./n8n:/home/node/.n8n
