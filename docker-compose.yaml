@@ -12,7 +12,7 @@ services:
       - N8N_BASIC_AUTH_PASSWORD=changeme
       - GENERIC_TIMEZONE=Asia/Jakarta
       - N8N_HOST=localhost
-      - WEBHOOK_URL=https://your-n8n-domain   # ganti jika pakai domain
+      - WEBHOOK_URL=- WEBHOOK_URL=https://drugsenseai.app.n8n.cloud # ganti jika pakai domain
       - N8N_PORT=5678
       - DRUGBANK_API_KEY=your_drugbank_key
       - DRUGBANK_BASE_URL=https://api.drugbank.io

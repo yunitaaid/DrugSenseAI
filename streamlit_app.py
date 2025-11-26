@@ -3,7 +3,7 @@ import requests
 import json
 
 # URL webhook n8n kamu
-N8N_WEBHOOK_URL = "http://localhost:5678/webhook/drug-analysis"
+N8N_WEBHOOK_URL = "https://drugsenseai.app.n8n.cloud/webhook/drug-analysis"
 #N8N_WEBHOOK_URL = "http://localhost:5678/webhook-test/drug-analysis"
 
 
