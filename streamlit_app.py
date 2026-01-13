@@ -5,7 +5,7 @@ import json
 # =========================================================
 # KONFIGURASI
 # =========================================================
-N8N_WEBHOOK_URL = "http://localhost:5678/webhook/drug-analysis"
+N8N_WEBHOOK_URL = "https://drugsenseai2.app.n8n.cloud/webhook/drug-analysis"
 
 st.set_page_config(
     page_title="DrugSense AI",
