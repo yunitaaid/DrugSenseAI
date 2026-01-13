@@ -8,7 +8,7 @@
         "responseMode": "responseNode",
         "options": {}
       },
-      "id": "60038890-9caa-4024-a568-433519303b86",
+      "id": "29ce2f55-604d-4b91-9629-69ca1027d6d4",
       "name": "Webhook Input",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
@@ -35,7 +35,7 @@
           ]
         }
       },
-      "id": "53236f95-7949-42b2-9dc3-46c4adc2166b",
+      "id": "354e86c0-8009-477c-8807-de6f17f547c9",
       "name": "OpenFDA API",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 1,
@@ -48,7 +48,7 @@
       "parameters": {
         "functionCode": "const result = items[0].json.results?.[0] || {};\n\nreturn [{\n  json: {\n    nama_obat: $json[\"nama_obat\"] || \"Tidak diketahui\",\n    indikasi: result.indications_and_usage?.[0] || \"Tidak ditemukan\",\n    efek_samping: result.adverse_reactions?.[0] || \"Tidak ditemukan\",\n    peringatan: result.warnings_and_cautions?.[0] || \"Tidak ditemukan\",\n    data_fda: result\n  }\n}];\n"
       },
-      "id": "0511070e-729b-4dab-8745-a18bca213e1b",
+      "id": "18db5528-1e42-472f-a425-4aa44c5956ec",
       "name": "Format FDA Data",
       "type": "n8n-nodes-base.function",
       "typeVersion": 1,
@@ -60,15 +60,15 @@
     {
       "parameters": {
         "requestMethod": "POST",
-        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyCC66-dLa9KIZKcic6yrxQbPScm2wyvM80",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyA5cdCBX78J3hBl1-aGu2DTAzWbTNWAXOE",
         "jsonParameters": true,
         "options": {
           "bodyContentType": "json"
         },
-        "bodyParametersJson": "={{ JSON.stringify({\n  contents: [\n    {\n      role: \"user\",\n      parts: [\n        {\n          text: \"Kamu adalah asisten medis yang menganalisis data obat.\\n\" +\n                \"Berikan analisis, efek samping dan interaksi antar obat berdasarkan data berikut:\\n\" +\n                JSON.stringify($json)\n        }\n      ]\n    }\n  ]\n}) }}\n",
+        "bodyParametersJson": "={{ JSON.stringify({\n  contents: [\n    {\n      role: \"user\",\n      parts: [\n        {\n          text: \"Kamu adalah asisten medis yang menganalisis data obat.\\n\" +\n                \"Sebutkan definisi, efek samping dan interaksi antar obat lain berdasarkan data berikut:\\n\" +\n                JSON.stringify($json)\n        }\n      ]\n    }\n  ]\n}) }}\n",
         "headerParametersJson": "={\n  \"Content-Type\": \"application/json\"\n}"
       },
-      "id": "129ceb2e-1520-4dc0-b6e6-334ae3543759",
+      "id": "9f95caa3-725d-447f-9e96-5f74f227ebef",
       "name": "Gemini API",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 1,
@@ -81,7 +81,7 @@
       "parameters": {
         "functionCode": "const aiResponse = items[0].json.candidates?.[0]?.content?.parts?.[0]?.text || \"Tidak ada hasil dari Gemini\";\n\nreturn [{\n  json: {\n    ...$json,\n    analisis_ai: aiResponse\n  }\n}];\n"
       },
-      "id": "9fba3727-4408-4735-8df1-11121e1a8f1d",
+      "id": "8e0bc6b0-0109-4f33-b32e-6a95b4959fc3",
       "name": "Parse Gemini Output",
       "type": "n8n-nodes-base.function",
       "typeVersion": 1,
@@ -94,7 +94,7 @@
       "parameters": {
         "options": {}
       },
-      "id": "8686dd60-1d77-4db9-bb3b-327a8cf82407",
+      "id": "968ccc24-10b0-403b-83d5-83c48edded74",
       "name": "Respond to Webhook",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
@@ -113,7 +113,7 @@
         1280,
         0
       ],
-      "id": "937add7c-afa7-4e52-b573-683dfb363e76",
+      "id": "c395c215-1637-4a08-a31c-253589f0982e",
       "name": "Code in JavaScript",
       "executeOnce": false
     }
@@ -206,10 +206,10 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "429a9f59-31ea-4ff7-8b7b-e0790b4696e2",
+  "versionId": "6ffe91ee-62ad-463f-8ce4-e610cf6e3c0c",
   "meta": {
-    "instanceId": "b757982629056706f8de5f4a7de0aa7be09acefd6369f253a17712d5f751851e"
+    "instanceId": "5c32db4d7f93a6946dd343f9c8c65ad43fd715580ee4959e58d396409f4842e7"
   },
-  "id": "LVkX21uxE34Ow9Xi",
+  "id": "xITkc5Rx7YTco6Ea",
   "tags": []
 }
